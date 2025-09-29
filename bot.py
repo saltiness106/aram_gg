@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 # 🔑 민감정보
 RIOT_API_KEY = os.getenv("RIOT_API_KEY")
 DISCORD_BOT_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
+
 # 🔗 API 엔드포인트
 ACCOUNT_API_URL = "https://asia.api.riotgames.com"
 MATCH_API_URL = "https://asia.api.riotgames.com"
@@ -54,8 +55,8 @@ async def on_message(message):
                 await message.channel.send(f"소환사 `{gameName}#{tagLine}`를 찾을 수 없습니다.")
                 return
 
-            # 3. PUUID로 최근 20개 칼바람(큐 ID 450) 경기 ID 목록 가져오기
-            matches_url = f"{MATCH_API_URL}/lol/match/v5/matches/by-puuid/{puuid}/ids?queue=450&start=0&count=20"
+            # 3. PUUID로 최근 30개 칼바람(큐 ID 450) 경기 ID 목록 가져오기
+            matches_url = f"{MATCH_API_URL}/lol/match/v5/matches/by-puuid/{puuid}/ids?queue=450&start=0&count=30"
             matches_response = requests.get(matches_url, headers=headers)
             matches_response.raise_for_status()
             match_ids = matches_response.json()
