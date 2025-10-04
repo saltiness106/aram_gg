@@ -2,6 +2,7 @@ import os
 import discord
 import requests
 from datetime import datetime, timedelta
+import pytz # timezone 처리를 위해 pytz 라이브러리를 임포트합니다.
 
 # 🔑 민감정보
 RIOT_API_KEY = os.getenv("RIOT_API_KEY")
@@ -66,7 +67,9 @@ async def on_message(message):
                 return
 
             # 4. 오전 6시 기준 오늘 승패 집계
-            kst_now = datetime.now()
+            # pytz를 이용해 정확한 한국 시간(KST)으로 시간대를 설정합니다.
+            kst = pytz.timezone('Asia/Seoul')
+            kst_now = datetime.now(kst)
             today_6am_kst = kst_now.replace(hour=6, minute=0, second=0, microsecond=0)
             if kst_now.hour < 6:
                 today_6am_kst -= timedelta(days=1)
@@ -80,7 +83,8 @@ async def on_message(message):
                 match_data = match_response.json()
 
                 game_creation_ts = match_data['info']['gameCreation'] // 1000
-                game_creation_dt = datetime.fromtimestamp(game_creation_ts)
+                # Riot API의 UTC 시간을 KST로 변환하여 정확히 비교합니다.
+                game_creation_dt = datetime.fromtimestamp(game_creation_ts, tz=pytz.utc).astimezone(kst)
 
                 # 금일 경기가 아니면 루프 중단 (최신 경기부터 가져오므로)
                 if game_creation_dt < today_6am_kst:
